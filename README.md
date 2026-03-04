@@ -62,3 +62,6 @@ Aplikasi mendukung beberapa stand penjualan:
 ## 📄 Lisensi
 
 Dibuat untuk kebutuhan pengelolaan beras zakat fitrah.
+
+
+
