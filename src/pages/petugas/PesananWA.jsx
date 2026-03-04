@@ -51,37 +51,43 @@ export default function PetugasPesananWA() {
         if (!form.nama_pembeli || !form.jumlah_kantong) { toast.error('Isi nama dan jumlah kantong'); return; }
         setSaving(true);
         try {
-            const mainP = await getDocs(collection(db, 'master_produk'));
-            const pId = mainP.empty ? 'default' : mainP.docs[0].id;
+            // 1. Buat pesanan WA
+            await addDoc(collection(db, 'pesanan_wa'), {
+                nomor_pesanan: `P${Date.now()}`,
+                nama_pembeli: form.nama_pembeli,
+                dukuh_id: form.dukuh_id,
+                jumlah_kantong: Number(form.jumlah_kantong),
+                total_harga,
+                status_bayar: form.status_bayar,
+                status_antar: 'MENUNGGU',
+                bukti_transfer_url: '',
+                catatan: form.catatan,
+                created_by: user?.uid || '',
+                created_at: serverTimestamp(),
+                updated_at: serverTimestamp(),
+            });
 
-            await runTransaction(db, async (transaction) => {
-                const mpRef = doc(db, 'master_produk', pId);
-                const snapP = await transaction.get(mpRef);
-                const currentPStok = snapP.exists() ? (snapP.data().stok_tersedia || 0) : 0;
-
-                if (snapP.exists()) {
-                    transaction.update(mpRef, {
-                        stok_tersedia: Math.max(0, currentPStok - Number(form.jumlah_kantong)),
-                        last_updated: serverTimestamp()
+            // 2. Kurangi stok pusat
+            try {
+                const mainP = await getDocs(collection(db, 'master_produk'));
+                if (!mainP.empty) {
+                    const pId = mainP.docs[0].id;
+                    const mpRef = doc(db, 'master_produk', pId);
+                    await runTransaction(db, async (transaction) => {
+                        const snapP = await transaction.get(mpRef);
+                        if (snapP.exists()) {
+                            const currentStok = snapP.data().stok_tersedia || 0;
+                            transaction.update(mpRef, {
+                                stok_tersedia: Math.max(0, currentStok - Number(form.jumlah_kantong)),
+                                last_updated: serverTimestamp()
+                            });
+                        }
                     });
                 }
+            } catch (stokErr) {
+                console.error('Gagal update stok pusat:', stokErr);
+            }
 
-                const newOrderRef = doc(collection(db, 'pesanan_wa'));
-                transaction.set(newOrderRef, {
-                    nomor_pesanan: `P${Date.now()}`,
-                    nama_pembeli: form.nama_pembeli,
-                    dukuh_id: form.dukuh_id,
-                    jumlah_kantong: Number(form.jumlah_kantong),
-                    total_harga,
-                    status_bayar: form.status_bayar,
-                    status_antar: 'MENUNGGU',
-                    bukti_transfer_url: '',
-                    catatan: form.catatan,
-                    created_by: user?.uid || '',
-                    created_at: serverTimestamp(),
-                    updated_at: serverTimestamp(),
-                });
-            });
             toast.success('Pesanan ditambahkan');
             setShowModal(false);
             setForm({ nama_pembeli: '', dukuh_id: 'dukuh1', jumlah_kantong: 1, status_bayar: 'BELUM BAYAR', catatan: '' });
