@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import {
-    collection, query, orderBy, onSnapshot, addDoc, updateDoc, doc, serverTimestamp, getDocs, runTransaction
+    collection, query, orderBy, onSnapshot, addDoc, updateDoc, doc, serverTimestamp, getDocs, runTransaction, increment
 } from 'firebase/firestore';
 import { db } from '../../firebase/config';
 import { useAuth } from '../../contexts/AuthContext';
@@ -72,20 +72,14 @@ export default function PetugasPesananWA() {
                 const mainP = await getDocs(collection(db, 'master_produk'));
                 if (!mainP.empty) {
                     const pId = mainP.docs[0].id;
-                    const mpRef = doc(db, 'master_produk', pId);
-                    await runTransaction(db, async (transaction) => {
-                        const snapP = await transaction.get(mpRef);
-                        if (snapP.exists()) {
-                            const currentStok = snapP.data().stok_tersedia || 0;
-                            transaction.update(mpRef, {
-                                stok_tersedia: Math.max(0, currentStok - Number(form.jumlah_kantong)),
-                                last_updated: serverTimestamp()
-                            });
-                        }
+                    await updateDoc(doc(db, 'master_produk', pId), {
+                        stok_tersedia: increment(-Number(form.jumlah_kantong)),
+                        last_updated: serverTimestamp()
                     });
                 }
             } catch (stokErr) {
                 console.error('Gagal update stok pusat:', stokErr);
+                toast.error('Pesanan dibuat tapi stok pusat gagal diupdate: ' + stokErr.message);
             }
 
             toast.success('Pesanan ditambahkan');
