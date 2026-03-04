@@ -1,0 +1,86 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function getUserRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+    function getUserStandId() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.stand_id;
+    }
+    function isAdmin() {
+      return request.auth != null && getUserRole() == 'admin';
+    }
+    function isPetugas() {
+      return request.auth != null && getUserRole() == 'petugas';
+    }
+
+    // Master data – semua bisa baca, hanya admin yang tulis
+    match /master_dukuh/{doc} {
+      allow read: if request.auth != null;
+      allow write: if isAdmin();
+    }
+    match /master_produk/{doc} {
+      allow read: if request.auth != null;
+      allow create, delete: if isAdmin();
+      allow update: if request.auth != null && (isAdmin() || isPetugas());
+    }
+
+    // Users – admin tulis semua, user baca dirinya sendiri
+    match /users/{userId} {
+      allow read: if request.auth != null && (isAdmin() || request.auth.uid == userId);
+      allow write: if isAdmin();
+    }
+
+    // Transaksi stand – petugas bisa baca dan buat di standnya, admin semua
+    match /transaksi_stand/{doc} {
+      allow read: if request.auth != null && (isAdmin() ||
+                  (isPetugas() && resource.data.stand_id == getUserStandId()));
+      allow create: if request.auth != null && (isAdmin() ||
+                    (isPetugas() && request.resource.data.stand_id == getUserStandId()));
+      allow update, delete: if isAdmin();
+    }
+
+    // Pesanan WA – semua bisa baca dan buat (keputusan final: petugas lihat semua pesanan)
+    match /pesanan_wa/{doc} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null && (isAdmin() || isPetugas());
+      allow update: if request.auth != null && (isAdmin() ||
+                    (isPetugas() &&
+                     (request.resource.data.status_antar in ['DIANTAR', 'SELESAI'] ||
+                      request.resource.data.status_bayar in ['DP', 'LUNAS'])));
+      allow delete: if isAdmin();
+    }
+
+    // Setoran – semua bisa baca (keputusan final: petugas lihat semua setoran)
+    match /setoran/{doc} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null && (isAdmin() ||
+                    (isPetugas() && request.resource.data.stand_id == getUserStandId()));
+      allow update, delete: if isAdmin();
+    }
+
+    // Stok per stand – petugas baca standnya saja, admin semua (write via transaction)
+    match /stok_per_stand/{doc} {
+      allow read: if request.auth != null && (isAdmin() ||
+                  (isPetugas() && doc == getUserStandId()));
+      allow write: if request.auth != null;
+    }
+
+    // Transfer stok – petugas bisa baca yang melibatkan standnya, buat transfer, konfirmasi
+    match /transfer_stok/{doc} {
+      allow read: if request.auth != null &&
+                   (isAdmin() ||
+                    (isPetugas() &&
+                     (resource.data.dari_stand_id == getUserStandId() ||
+                      resource.data.ke_stand_id == getUserStandId())));
+      allow create: if request.auth != null && (isAdmin() || isPetugas());
+      allow update: if request.auth != null &&
+                     (isAdmin() ||
+                      (isPetugas() &&
+                       (resource.data.dari_stand_id == getUserStandId() ||
+                        resource.data.ke_stand_id == getUserStandId())));
+      allow delete: if isAdmin();
+    }
+  }
+}

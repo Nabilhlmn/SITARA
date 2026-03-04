@@ -1,0 +1,241 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    @apply bg-surface-900 text-white font-sans antialiased;
+    min-height: 100vh;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-surface-800;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-surface-500 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-primary-500;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-surface-800 rounded-2xl border border-surface-600 p-5;
+  }
+
+  .card-elevated {
+    @apply bg-surface-700 rounded-2xl border border-surface-500 p-5;
+  }
+
+  .btn-primary {
+    @apply bg-primary-500 hover:bg-primary-400 text-black font-semibold py-3 px-6 rounded-xl transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2;
+  }
+
+  .btn-secondary {
+    @apply bg-surface-600 hover:bg-surface-500 text-white font-medium py-3 px-6 rounded-xl transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 border border-surface-500;
+  }
+
+  .btn-danger {
+    @apply bg-red-600 hover:bg-red-500 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2;
+  }
+
+  .btn-success {
+    @apply bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2;
+  }
+
+  .btn-kasir {
+    @apply flex items-center justify-center w-16 h-16 rounded-2xl text-2xl font-bold transition-all duration-150 active:scale-90 select-none cursor-pointer;
+  }
+
+  .input-field {
+    @apply w-full bg-surface-700 border border-surface-500 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-colors duration-200 text-base;
+  }
+
+  .label {
+    @apply block text-sm font-medium text-gray-400 mb-1.5;
+  }
+
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+
+  .stat-card {
+    @apply card flex flex-col gap-2 hover:border-primary-500/30 transition-colors duration-200;
+  }
+
+  .nav-item {
+    @apply flex flex-col items-center gap-1 py-2 px-4 rounded-xl text-gray-400 hover:text-primary-400 hover:bg-surface-700 transition-all duration-200 cursor-pointer text-xs font-medium;
+  }
+
+  .nav-item-active {
+    @apply text-primary-400 bg-surface-700;
+  }
+
+  .table-header {
+    @apply text-xs font-semibold text-gray-400 uppercase tracking-wider px-4 py-3;
+  }
+
+  .table-cell {
+    @apply px-4 py-3 text-sm text-gray-200 whitespace-nowrap;
+  }
+
+  .table-row {
+    @apply border-b border-surface-600 hover:bg-surface-700/50 transition-colors duration-150;
+  }
+
+  .status-badge-menunggu {
+    @apply badge bg-yellow-500/20 text-yellow-400;
+  }
+
+  .status-badge-dikirim {
+    @apply badge bg-blue-500/20 text-blue-400;
+  }
+
+  .status-badge-diterima {
+    @apply badge bg-purple-500/20 text-purple-400;
+  }
+
+  .status-badge-selesai {
+    @apply badge bg-emerald-500/20 text-emerald-400;
+  }
+
+  .status-badge-batal {
+    @apply badge bg-red-500/20 text-red-400;
+  }
+
+  .status-badge-lunas {
+    @apply badge bg-emerald-500/20 text-emerald-400;
+  }
+
+  .status-badge-dp {
+    @apply badge bg-orange-500/20 text-orange-400;
+  }
+
+  .status-badge-diantar {
+    @apply badge bg-blue-500/20 text-blue-400;
+  }
+}
+
+@layer utilities {
+  .glow-primary {
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.2);
+  }
+
+  .text-gradient {
+    background: linear-gradient(135deg, #f59e0b, #fde68a);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
+
+/* Print Styles */
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Hide navigation, buttons, sidebar */
+  header,
+  nav,
+  button,
+  .btn-primary,
+  .btn-secondary,
+  .btn-danger,
+  aside,
+  footer {
+    display: none !important;
+  }
+
+  /* Main content full width */
+  main {
+    overflow: visible !important;
+    height: auto !important;
+  }
+
+  /* Cards & tables readable */
+  .card,
+  .card-elevated,
+  .stat-card {
+    background: white !important;
+    border: 1px solid #ddd !important;
+    color: black !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Text colors for print */
+  h1,
+  h2,
+  h3,
+  p,
+  span,
+  td,
+  th,
+  div {
+    color: black !important;
+    -webkit-text-fill-color: black !important;
+  }
+
+  /* Table borders */
+  table {
+    border-collapse: collapse;
+    width: 100% !important;
+  }
+
+  th,
+  td {
+    border: 1px solid #ccc !important;
+    padding: 6px 8px !important;
+    font-size: 11px !important;
+    white-space: normal !important;
+  }
+
+  th {
+    background: #f3f4f6 !important;
+    font-weight: bold !important;
+  }
+
+  /* Colored text overrides for print readability */
+  .text-primary-400,
+  .text-emerald-400,
+  .text-blue-400,
+  .text-purple-400,
+  .text-red-400 {
+    color: black !important;
+    -webkit-text-fill-color: black !important;
+  }
+
+  /* Ensure page breaks work */
+  .space-y-6>* {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Remove dark backgrounds */
+  .bg-surface-700,
+  .bg-surface-800,
+  .bg-surface-900 {
+    background: white !important;
+  }
+
+  @page {
+    margin: 1.5cm;
+    size: landscape;
+  }
+}
