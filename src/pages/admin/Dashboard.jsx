@@ -71,16 +71,14 @@ export default function AdminDashboard() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Fetch master produk
-        const fetchMaster = async () => {
-            const snap = await getDocs(collection(db, 'master_produk'));
+        // Real-time listener stok pusat
+        const unsubMaster = onSnapshot(collection(db, 'master_produk'), (snap) => {
             if (!snap.empty) {
                 const d = snap.docs[0].data();
                 setStats(s => ({ ...s, totalStokPusat: d.stok_tersedia || 0 }));
                 setHarga(d.harga || 65000);
             }
-        };
-        fetchMaster();
+        });
 
         // Fetch stok per stand for chart
         const unsubStok = onSnapshot(collection(db, 'stok_per_stand'), (snap) => {
@@ -132,6 +130,7 @@ export default function AdminDashboard() {
         });
 
         return () => {
+            unsubMaster();
             unsubStok();
             unsubTx();
             unsubPesanan();
