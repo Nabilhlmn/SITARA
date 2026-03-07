@@ -128,7 +128,7 @@ export default function AdminPesananWA() {
                         ...form,
                         jumlah_kantong: Number(form.jumlah_kantong),
                         total_harga: Number(form.total_harga),
-                        nomor_pesanan: `P${String(count).padStart(3, '0')}`,
+                        nomor_pesanan: (() => { const n = new Date(); return `WA-${String(n.getDate()).padStart(2, '0')}${String(n.getMonth() + 1).padStart(2, '0')}-${String(n.getHours()).padStart(2, '0')}${String(n.getMinutes()).padStart(2, '0')}`; })(),
                         bukti_transfer_url: '',
                         created_at: serverTimestamp(),
                         updated_at: serverTimestamp(),

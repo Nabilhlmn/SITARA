@@ -53,7 +53,7 @@ export default function PetugasPesananWA() {
         try {
             // 1. Buat pesanan WA
             await addDoc(collection(db, 'pesanan_wa'), {
-                nomor_pesanan: `P${Date.now()}`,
+                nomor_pesanan: (() => { const n = new Date(); return `WA-${String(n.getDate()).padStart(2, '0')}${String(n.getMonth() + 1).padStart(2, '0')}-${String(n.getHours()).padStart(2, '0')}${String(n.getMinutes()).padStart(2, '0')}`; })(),
                 nama_pembeli: form.nama_pembeli,
                 dukuh_id: form.dukuh_id,
                 jumlah_kantong: Number(form.jumlah_kantong),
