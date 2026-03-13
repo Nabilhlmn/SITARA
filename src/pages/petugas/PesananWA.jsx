@@ -149,7 +149,6 @@ export default function PetugasPesananWA() {
                             <div className="flex flex-col items-end gap-1">
                                 <StatusBayar s={p.status_bayar} />
                                 <StatusAntar s={p.status_antar} />
-                                {p.status_bayar === 'BELUM BAYAR' && <span className="status-badge-batal">BELUM BAYAR</span>}
                             </div>
                         </div>
                         {p.catatan && <p className="text-xs text-gray-500 bg-surface-700 rounded-lg px-3 py-2">{p.catatan}</p>}
